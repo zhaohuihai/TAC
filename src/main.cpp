@@ -22,10 +22,10 @@ int main()
 {
 
 //	double time_start = dsecnd() ;
-	tensor_contraction() ;
-	tensor_reshape() ;
+//	tensor_contraction() ;
+//	tensor_reshape() ;
 
-	tensor_permute() ;
+//	tensor_permute() ;
 
 	tensor_svd() ;
 

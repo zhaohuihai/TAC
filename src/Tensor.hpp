@@ -302,6 +302,10 @@ inline int reNonSymEig(Tensor<double> A, Tensor<double> &Wr, Tensor<double> &Wi,
 // info = svd(A, U, S, V) ;
 inline int svd(Tensor<double> A, Tensor<double>& U, Tensor<double>& S, Tensor<double>& V) ;
 
+// Computes the singular value decomposition of a general rectangular matrix using QR method
+// A = U * S * V'
+// info = svd_qr(A, U, S, V) ;
+inline int svd_qr(Tensor<double> A, Tensor<double>& U, Tensor<double>& S, Tensor<double>& V) ;
 
 // QR factorization
 // Computes the QR factorization of a general m-by-n matrix.
@@ -3515,6 +3519,54 @@ int svd(Tensor<double> A, Tensor<double>& U, Tensor<double>& S, Tensor<double>& 
 	if (info != 0)
 	{
 		std::cout << "svd error info = " << info << std::endl ;
+	}
+
+	return info ;
+}
+
+// Computes the singular value decomposition of a general rectangular matrix using QR method
+// A = U * S * V'
+// info = svd_qr(A, U, S, V) ;
+int svd_qr(Tensor<double> A, Tensor<double>& U, Tensor<double>& S, Tensor<double>& V)
+{
+	if (A.rank() != 2)
+	{
+		std::cout << "svd_qr error: 1st input must be a matrix." << std::endl ;
+		exit(0) ;
+	}
+
+	char jobu = 'S' ;
+	char jobvt = 'S' ;
+	int m = A.dimension(0) ; // The number of rows of the matrix A
+	int n = A.dimension(1) ; // The number of columns in A
+	int lda = m ; // The leading dimension of  A
+	int ldu = m ; // The leading dimensions of U
+	int ldvt = std::min(m, n) ; // The leading dimensions of VT
+
+	S = Tensor<double>(ldvt) ;
+	U = Tensor<double>(m, ldvt) ;
+	V = Tensor<double>(ldvt, n) ;
+
+	int info ;
+	//************************************************
+	// workspace query
+	Tensor<double> work(1) ;
+	int lwork = - 1 ;
+
+	dgesvd(&jobu, &jobvt, &m, &n, &(A[0]), &lda, &(S[0]), &(U[0]), &ldu, &(V[0]), &ldvt, &(work[0]), &lwork, &info) ;
+
+	//*********************************************************************
+	// computation
+	lwork = (int)work(0) + 1 ;
+	work = Tensor<double>(lwork) ;
+
+	dgesvd(&jobu, &jobvt, &m, &n, &(A[0]), &lda, &(S[0]), &(U[0]), &ldu, &(V[0]), &ldvt, &(work[0]), &lwork, &info) ;
+
+	V = V.trans() ;
+
+	if (info != 0)
+	{
+		std::cout << "svd_qr error info = " << info << std::endl ;
 	}
 
 	return info ;

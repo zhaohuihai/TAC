@@ -39,7 +39,7 @@ void tensor_permute()
 
 void tensor_svd()
 {
-	int D = 3000 ;
+	int D = 4000 ;
 	Index x1(D), x2(D) ;
 //	std::cout << x1.dim() << std::endl ;
 //	std::cout << x2.dim() << std::endl ;
@@ -47,11 +47,23 @@ void tensor_svd()
 
 	A.randUniform() ;
 	Tensor<double> U, S, V ;
+	Tensor<double> U1, S1, V1 ;
 
 	double time_start = dsecnd() ;
 
 	svd(A, U, S, V) ;
+//	svd_qr(A, U1, S1, V1) ;
 
-	std::cout << std::endl << "Total CPU time = " << (dsecnd() - time_start ) << " seconds" << std::endl ;
+	std::cout << std::endl << "svd_dc time = " << (dsecnd() - time_start ) << " seconds" << std::endl ;
+
+	time_start = dsecnd() ;
+
+//	svd(A, U, S, V) ;
+	svd_qr(A, U1, S1, V1) ;
+
+	std::cout << std::endl << "svd_qr time = " << (dsecnd() - time_start ) << " seconds" << std::endl ;
+
+	Tensor<double> Sdiff = S - S1 ;
+	std::cout << " max diff of 2 svd methods: "  << Sdiff.maxAbs() << std::endl ;
 
 }
